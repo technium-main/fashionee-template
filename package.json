@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:stage1": "playwright test __tests__/e2e/stage1"
   },
   "dependencies": {
     "react": "19.1.1",
@@ -25,8 +26,10 @@
     "eslint": "9.33.0",
     "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-react-refresh": "0.4.20",
+    "eslint-plugin-vitest": "^0.5.4",
     "globals": "16.3.0",
     "jest": "29.7.0",
+    "jsdom": "^27.0.0",
     "vite": "7.1.2"
   }
 }
