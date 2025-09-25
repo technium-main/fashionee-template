@@ -10,15 +10,16 @@ jobs:
   check-commit:
     runs-on: ubuntu-latest
     outputs:
-      should-run: ${{ steps.check.outputs.should-run }}
+      job-number: ${{ steps.check.outputs.job-number }}
     steps:
       - name: Check commit message
         id: check
         run: |
-          if echo "${{ github.event.head_commit.message }}" | grep -q "stage-1"; then
-            echo "should-run=true" >> $GITHUB_OUTPUT
+          if echo "${{ github.event.head_commit.message }}" | grep -q "stage-[0-9]\+"; then
+            STAGE_NUM=$(echo "${{ github.event.head_commit.message }}" | grep -o 'stage-[0-9]\+' | grep -o '[0-9]\+')
+            echo "job-number=$STAGE_NUM" >> $GITHUB_OUTPUT
           else
-            echo "should-run=false" >> $GITHUB_OUTPUT
+            echo "job-number=0" >> $GITHUB_OUTPUT
           fi
 
   test-stage1:
@@ -40,3 +41,63 @@ jobs:
 
       - name: Run Stage 1 tests
         run: npm run test:stage1
+
+  test-stage2:
+    needs: check-commit
+    if: needs.check-commit.outputs.job-number == '2'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Stage 2 tests
+        run: npm run test:stage2
+
+  test-stage3:
+    needs: check-commit
+    if: needs.check-commit.outputs.job-number == '3'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Stage 3 tests
+        run: npm run test:stage3
+
+  test-stage4:
+    needs: check-commit
+    if: needs.check-commit.outputs.job-number == '4'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Stage 4 tests
+        run: npm run test:stage4
