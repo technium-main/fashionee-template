@@ -3,7 +3,6 @@ import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
-import vitest from 'eslint-plugin-vitest'
 
 export default defineConfig([
   globalIgnores(['dist']),
@@ -17,8 +16,7 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: {
-        ...globals.browser,
-        ...vitest.environments.env.globals,
+        ...globals.browser
       },
       parserOptions: {
         ecmaVersion: 'latest',
