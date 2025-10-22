@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useApp } from '../../context/AppContext';
+import { useApp } from "../../context/AppContext";
 import "./Shop.css";
 
 const Shop = ({ products = [] }) => {
@@ -9,13 +9,13 @@ const Shop = ({ products = [] }) => {
         <div className="sidebar">
           <div className="search">
             <div className="search-row">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="input" 
-              />
+              <input type="text" placeholder="Search..." className="input" />
             </div>
-            <img src="/icons/search.svg" className="search-icon" alt="search"></img>
+            <img
+              src="/icons/search.svg"
+              className="search-icon"
+              alt="search"
+            ></img>
           </div>
 
           <div className="sidebar-item">
@@ -108,52 +108,118 @@ const Shop = ({ products = [] }) => {
 };
 
 // КОМПОНЕНТ КАРТОЧКИ ТОВАРА С КОРЗИНОЙ
+// КОМПОНЕНТ КАРТОЧКИ ТОВАРА С КОРЗИНОЙ
 const ProductCard = ({ product }) => {
   const [isFavorite, setIsFavorite] = useState(false);
-  const [quantity, setQuantity] = useState(0); // состояние для количества товара
+  const [quantity, setQuantity] = useState(0);
   const { updateFavoritesCount, updateCartCount } = useApp();
 
   // Загрузка состояния избранного и корзины из localStorage
   useEffect(() => {
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
     setIsFavorite(favorites.includes(product.id));
-    
+
     // Загружаем количество из корзины
-    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-    setQuantity(cart[product.id] || 0);
+    const cartData = localStorage.getItem("cart");
+    let quantity = 0;
+
+    if (cartData) {
+      try {
+        const cart = JSON.parse(cartData);
+
+        if (Array.isArray(cart)) {
+          const cartItem = cart.find((item) => item.id === product.id);
+          quantity = cartItem ? cartItem.quantity : 0;
+        } else if (typeof cart === "object" && cart !== null) {
+          quantity = cart[product.id] || 0;
+        }
+      } catch (error) {
+        console.error("Error parsing cart:", error);
+      }
+    }
+
+    setQuantity(quantity);
   }, [product.id]);
 
   // Обработчик клика по кнопке избранного
   const handleFavoriteClick = () => {
     const newFavoriteState = !isFavorite;
     setIsFavorite(newFavoriteState);
-    
-    const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-    
+
+    const favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
     if (newFavoriteState) {
       const updatedFavorites = [...favorites, product.id];
-      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
     } else {
-      const updatedFavorites = favorites.filter(id => id !== product.id);
-      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+      const updatedFavorites = favorites.filter((id) => id !== product.id);
+      localStorage.setItem("favorites", JSON.stringify(updatedFavorites));
     }
-    
+
     updateFavoritesCount();
   };
 
   // Функции для работы с корзиной
   const updateCartInLocalStorage = (productId, qty) => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-    cart[productId] = qty;
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount(); // обновляем счетчик в хедере
+    const cartData = localStorage.getItem("cart");
+    let cart = [];
+
+    if (cartData) {
+      try {
+        const parsedCart = JSON.parse(cartData);
+
+        // Конвертируем старый формат в новый
+        if (Array.isArray(parsedCart)) {
+          cart = parsedCart;
+        } else if (typeof parsedCart === "object" && parsedCart !== null) {
+          // Конвертируем объект в массив
+          cart = Object.entries(parsedCart).map(([id, quantity]) => ({
+            id: parseInt(id),
+            quantity: quantity,
+          }));
+        }
+      } catch (error) {
+        console.error("Error parsing cart:", error);
+      }
+    }
+
+    // Обновляем корзину
+    const existingItemIndex = cart.findIndex((item) => item.id === productId);
+
+    if (existingItemIndex > -1) {
+      cart[existingItemIndex].quantity = qty;
+    } else {
+      cart.push({ id: productId, quantity: qty });
+    }
+
+    localStorage.setItem("cart", JSON.stringify(cart));
+    updateCartCount();
   };
 
   const removeFromCartInLocalStorage = (productId) => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-    delete cart[productId];
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount(); // обновляем счетчик в хедере
+    const cartData = localStorage.getItem("cart");
+    let cart = [];
+
+    if (cartData) {
+      try {
+        const parsedCart = JSON.parse(cartData);
+
+        if (Array.isArray(parsedCart)) {
+          cart = parsedCart;
+        } else if (typeof parsedCart === "object" && parsedCart !== null) {
+          cart = Object.entries(parsedCart).map(([id, quantity]) => ({
+            id: parseInt(id),
+            quantity: quantity,
+          }));
+        }
+      } catch (error) {
+        console.error("Error parsing cart:", error);
+      }
+    }
+
+    const updatedCart = cart.filter((item) => item.id !== productId);
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+    updateCartCount();
   };
 
   // Обработчики для кнопок корзины
@@ -181,17 +247,15 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div 
-      data-testid="product-card" 
+    <div
+      data-testid="product-card"
       data-product-id={product.id}
       className="product-card"
     >
       <div className="photo">
         <div className="top-bar">
           <div className="labels">
-            {product.oldPrice && (
-              <div className="label sale">Sale</div>
-            )}
+            {product.oldPrice && <div className="label sale">Sale</div>}
             <div className="label new">New</div>
           </div>
 
@@ -209,14 +273,14 @@ const ProductCard = ({ product }) => {
                 padding: "5px",
               }}
             >
-              <img 
-                src="/icons/heart.svg" 
-                alt="favorites" 
+              <img
+                src="/icons/heart.svg"
+                alt="favorites"
                 className="favorite-icon"
                 style={{
-                  filter: isFavorite ? 
-                    'brightness(0) saturate(100%) invert(60%) sepia(90%) saturate(500%) hue-rotate(300deg) brightness(100%) contrast(100%)' 
-                    : 'none'
+                  filter: isFavorite
+                    ? "brightness(0) saturate(100%) invert(60%) sepia(90%) saturate(500%) hue-rotate(300deg) brightness(100%) contrast(100%)"
+                    : "none",
                 }}
               />
             </button>
@@ -247,47 +311,50 @@ const ProductCard = ({ product }) => {
             </button>
           ) : (
             // СЧЁТЧИК - показывается когда товар в корзине
-            <div className="quantity-counter" style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '10px',
-              justifyContent: 'center'
-            }}>
+            <div
+              className="quantity-counter"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                justifyContent: "center",
+              }}
+            >
               <button
                 data-testid="decrease-qty-btn"
                 onClick={handleDecrease}
                 style={{
-                  padding: '8px 12px',
-                  border: '1px solid #ccc',
-                  background: 'white',
-                  cursor: 'pointer',
-                  borderRadius: '4px'
+                  padding: "8px 12px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  cursor: "pointer",
+                  borderRadius: "4px",
                 }}
               >
                 -
               </button>
-              
-              <span 
+
+              <span
                 data-testid="product-quantity"
-                style={{ 
-                  minWidth: '20px', 
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                  fontSize: '16px'
+                style={{
+                  minWidth: "20px",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  fontSize: "16px",
                 }}
               >
                 {quantity}
               </span>
-              
+
               <button
                 data-testid="increase-qty-btn"
                 onClick={handleIncrease}
                 style={{
-                  padding: '8px 12px',
-                  border: '1px solid #ccc',
-                  background: 'white',
-                  cursor: 'pointer',
-                  borderRadius: '4px'
+                  padding: "8px 12px",
+                  border: "1px solid #ccc",
+                  background: "white",
+                  cursor: "pointer",
+                  borderRadius: "4px",
                 }}
               >
                 +

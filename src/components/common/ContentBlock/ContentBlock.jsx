@@ -12,13 +12,13 @@ const ContentBlock = () => {
   const getMenuItems = () => {
     if (currentPage === 'shop') {
       return [
-        { name: 'Home', page: 'shop' },
+        { name: 'Home', page: 'home' },
         { name: 'Shop', page: 'shop', active: true },
         { name: 'Cart', page: 'cart', active: true }
       ];
     } else {
       return [
-        { name: 'Home', page: 'shop' },
+        { name: 'Home', page: 'home' },
         { name: 'Shop', page: 'shop' },
         { name: 'Cart', page: 'cart', active: true }
       ];
@@ -46,9 +46,13 @@ const ContentBlock = () => {
                 className={'menu-item'}
                 onClick={() => handleMenuItemClick(item.page)}
                 style={{ cursor: 'pointer' }}
-                data-testid={item.page === 'shop' ? 'shop-btn' : null}
+                data-testid={
+                  item.page === 'shop' ? 'shop-btn' : 
+                  item.page === 'cart' ? 'cart-btn' : null 
+                }
               >
                 {item.name}
+                {index < getMenuItems().length - 1 && ' '}
               </span>
             ))}
           </div>

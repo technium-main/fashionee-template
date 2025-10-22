@@ -16,9 +16,32 @@ export const AppProvider = ({ children }) => {
 
   // Функция для обновления счётчика корзины
   const updateCartCount = () => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-    const totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
-    setCartCount(totalItems);
+    const cartData = localStorage.getItem('cart');
+    
+    if (!cartData) {
+      setCartCount(0);
+      return;
+    }
+
+    try {
+      const cart = JSON.parse(cartData);
+      
+      // Обрабатываем оба формата: массив и объект
+      let totalItems = 0;
+      
+      if (Array.isArray(cart)) {
+        // Новый формат: массив объектов [{id, quantity}]
+        totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+      } else if (typeof cart === 'object' && cart !== null) {
+        // Старый формат: объект {productId: quantity}
+        totalItems = Object.values(cart).reduce((sum, qty) => sum + qty, 0);
+      }
+      
+      setCartCount(totalItems);
+    } catch (error) {
+      console.error('Error parsing cart data:', error);
+      setCartCount(0);
+    }
   };
 
   // Загрузка избранного и корзины при запуске
@@ -35,7 +58,7 @@ export const AppProvider = ({ children }) => {
     favoritesCount,
     setFavoritesCount,
     updateFavoritesCount,
-    updateCartCount // не забудь экспортировать эту функцию
+    updateCartCount
   };
 
   return (
