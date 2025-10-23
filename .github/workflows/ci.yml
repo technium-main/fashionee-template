@@ -127,3 +127,15 @@ jobs:
 
       - name: Run Stage 4 tests
         run: npm run test:stage4
+
+  validate-branch-name:
+    needs: check-stage
+    if: needs.check-stage.outputs.stage-number == '0'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail on invalid branch name
+        run: |
+          echo "❌ Error: Branch name must be 'stage-1', 'stage-2', 'stage-3', or 'stage-4'"
+          echo "Current branch: ${{ github.head_ref || github.ref_name }}"
+          echo "Please rename your branch to match the required format."
+          exit 1
