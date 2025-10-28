@@ -1,0 +1,118 @@
+* {
+    font-family: Raleway, Serif;
+}
+
+.container {
+    max-width: 1140px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.input {
+    border: none;
+    border-bottom: 1px solid rgba(68, 68, 68, 20%);
+    color: rgba(68, 68, 68, 50%);
+    outline: none;
+    width: 100%;
+    padding: 0 0 15px 0;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 170%;
+}
+
+.buttonWrapper {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    max-width: 240px;
+    width: 100%;
+    cursor: pointer;
+}
+
+.buttonWrapper .button {
+    color: rgba(255, 255, 255, 1);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 100%;
+    border: none;
+    background: rgba(0, 0, 0, 1);
+    padding: 17px 74px;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+}
+
+.buttonWrapper .verticalLine {
+    width: 2px;
+    height: 100%;
+    background: rgba(0, 0, 0, 1);
+}
+
+.prices {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.prices .currentPrice {
+    font-family: Josefin Sans;
+    font-weight: 400;
+    font-size: 20px;
+    line-height: 100%;
+}
+
+.prices .oldPrice {
+    font-family: Josefin Sans;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 100%;
+    text-decoration: line-through;
+    color: rgba(68, 68, 68, 1)
+}
+
+.custom-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.custom-list .item {
+    color: rgba(68, 68, 68, 1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 170%;
+}
+
+.custom-list .item::before {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 5px;
+    background-image: url("/icons/square.svg");
+}
+
+.custom-list .item.active {
+    color: rgba(255, 142, 142, 1);
+    list-style: none;
+}
+
+.custom-list .item.active::before {
+    content: '';
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-image: url("/icons/small-row.svg");
+}
+
+.margin200 {
+    margin: 200px 0 0 0;
+}
+
+.margin250 {
+    margin: 250px 0 0 0;
+}

@@ -1,0 +1,78 @@
+.contentHeader {
+    max-width: 1920px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 150px;
+    align-items: center;
+}
+
+.headerTitleWrapper {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 21px;
+    max-width: 850px;
+    width: 100%;
+    margin-top: 60px;
+    position: relative;
+}
+
+.headerTitleAndNavigation {
+    display: flex;
+    flex-direction: column;
+    margin-left: 390px;
+}
+
+.headerTitle {
+    font-family: Josefin Sans;
+    font-weight: 400;
+    font-size: 80px;
+    line-height: 100%;
+    padding-bottom: 20px;
+}
+
+.headerNavigationWrapper {
+    display: flex;
+    gap: 12px;
+}
+
+.headerNavigationWrapper .line {
+    height: 15px;
+    width: 1.5px;
+    background: rgba(0, 0, 0, 1);
+}
+
+.navigation {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 100%;
+    color: rgba(68, 68, 68, 1);
+}
+
+.navigation:last-child,
+.navigation.active {
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 100%;
+    color: rgba(255, 142, 142, 1)
+}
+
+.bottomLine {
+    border-bottom: 2px solid black;
+    width: 100%;
+}
+
+.decorBubbles12 {
+    position: absolute;
+    top: -120px;
+    left: 60px;
+}
+
+.headerImage {
+    max-width: 800px;
+    width: 100%;
+    aspect-ratio: 2;
+    background: rgba(241, 242, 243, 1);
+    margin: 50px 120px;
+}

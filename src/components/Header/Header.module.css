@@ -1,0 +1,142 @@
+.header {
+    max-width: 1920px;
+    margin: 50px 60px 0 60px;
+    display: flex;
+    gap: 50px;
+    justify-content: space-between;
+}
+
+.leftSide {
+    display: flex;
+    gap: 65px;
+    align-items: center;
+}
+
+.logoContainer {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+}
+
+.menu {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.menuItem {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 16px;
+}
+
+.arrowHover {
+    display: none;
+}
+
+.menuItem.active,
+.menuItem:hover {
+    color: #FF8E8E;
+}
+
+.menuItem.active .arrowDefault {
+    display: none;
+}
+
+.menuItem.active .arrowHover {
+    display: inline-block;
+}
+
+.menuItem:hover .arrowHover {
+    display: inline-block;
+}
+
+.menuItem:hover .arrowDefault {
+    display: none;
+}
+
+.burgerCheckbox {
+    position: absolute;
+    visibility: hidden;
+}
+
+.burger {
+    cursor: pointer;
+    display: block;
+    position: relative;
+    border: none;
+    background: transparent;
+    width: 22px;
+    height: 14px;
+}
+
+.burger::before,
+.burger::after {
+    content: '';
+    left: 0;
+    position: absolute;
+    display: block;
+    width: 100%;
+    height: 2px;
+    border-radius: 10px;
+    background: #000;
+}
+
+.burger::before {
+    top: 0;
+    box-shadow: 0 11px 0 #000;
+    transition: box-shadow .3s .15s, top .3s .15s, transform .3s;
+}
+
+.burger::after {
+    bottom: 6.5px;
+    transition: bottom .3s .15s, transform .3s;
+}
+
+.burgerCheckbox:checked + .burger::before {
+    top: 2px;
+    transform: rotate(45deg);
+    box-shadow: 0 6px 0 rgba(0,0,0,0);
+    transition: box-shadow .15s, top .3s, transform .3s .15s;
+}
+
+.burgerCheckbox:checked + .burger::after {
+    bottom: 10px;
+    transform: rotate(-45deg);
+    transition: bottom .3s, transform .3s .15s;
+}
+
+.rightSide {
+    display: flex;
+    gap: 40px;
+    align-items: center;
+}
+
+.headerIcon {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.counter {
+    background: black;
+    color: white;
+    border-radius: 50%;
+    padding: 1px 5px 3px 4px;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 100%;
+    align-items: center;
+    justify-content: center;
+}
