@@ -1,7 +1,18 @@
 import React from 'react';
 import styles from './Header.module.css';
 
-function Header() {
+function Header({ onNavigate }) {
+    // Обработчики кликов
+    const handleShopClick = () => {
+        console.log('Shop clicked'); // Для отладки
+        onNavigate('shop');
+    };
+
+    const handleCartClick = () => {
+        console.log('Cart clicked'); // Для отладки
+        onNavigate('cart');
+    };
+
     return (
         <header className={styles.header} data-testid="header">
             <div className={styles.leftSide}>
@@ -15,7 +26,7 @@ function Header() {
                     </div>
                 </div>
                 <div className={styles.menu}>
-                    <div className={styles.menuItem}>
+                    <div className={styles.menuItem} onClick={handleShopClick}>
                         <span>Home</span>
                     </div>
                     <div className={styles.menuItem}>
@@ -23,7 +34,7 @@ function Header() {
                         <img src="/icons/arrow.svg" alt="arrow" className={styles.arrowDefault}/>
                         <img src="/icons/arrow-red.svg" alt="arrow-red" className={styles.arrowHover}/>
                     </div>
-                    <div className={`${styles.menuItem} ${styles.active}`}>
+                    <div className={`${styles.menuItem} ${styles.active}`} onClick={handleShopClick}>
                         <span>Shop</span>
                         <img src="/icons/arrow.svg" alt="arrow" className={styles.arrowDefault}/>
                         <img src="/icons/arrow-red.svg" alt="arrow-red" className={styles.arrowHover}/>
@@ -47,7 +58,12 @@ function Header() {
                     <img src="/icons/heart.svg" alt="favorites"/>
                     <div className={styles.counter}>1</div>
                 </div>
-                <div className={styles.headerIcon} data-testid="cart-btn">
+                <div
+                    className={styles.headerIcon}
+                    data-testid="cart-btn"
+                    onClick={handleCartClick}
+                    style={{ cursor: 'pointer' }}
+                >
                     <img src="/icons/cart.svg" alt="cart"/>
                     <div className={styles.counter}>2</div>
                 </div>
