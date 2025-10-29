@@ -1,72 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ProductCard.module.css';
 
-function ProductCard({ product }) {
+function ProductCard({ product, cart, onUpdateCart, favorites, onUpdateFavorites }) {
     const [isFavorite, setIsFavorite] = useState(false);
     const [cartQuantity, setCartQuantity] = useState(0);
 
-    // Загружаем состояние избранного из localStorage
+    // Синхронизируем состояние с пропсами
     useEffect(() => {
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
         setIsFavorite(favorites.includes(product.id));
-    }, [product.id]);
-
-    // Загружаем состояние корзины из localStorage
-    useEffect(() => {
-        const cart = JSON.parse(localStorage.getItem('cart') || '{}');
         setCartQuantity(cart[product.id] || 0);
-    }, [product.id]);
+    }, [favorites, cart, product.id]);
 
-    // Обработчик избранного
     const handleFavoriteClick = () => {
-        const newFavoriteState = !isFavorite;
-        setIsFavorite(newFavoriteState);
-
-        const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
-        let newFavorites;
-
-        if (newFavoriteState) {
-            newFavorites = [...favorites, product.id];
-        } else {
-            newFavorites = favorites.filter(id => id !== product.id);
-        }
-
-        localStorage.setItem('favorites', JSON.stringify(newFavorites));
+        onUpdateFavorites(product.id);
     };
 
-    // Обработчики корзины
     const handleAddToCart = () => {
-        const newQuantity = 1;
-        setCartQuantity(newQuantity);
-
-        const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-        cart[product.id] = newQuantity;
-        localStorage.setItem('cart', JSON.stringify(cart));
+        onUpdateCart(product.id, 1);
     };
 
     const handleIncrease = () => {
-        const newQuantity = cartQuantity + 1;
-        setCartQuantity(newQuantity);
-
-        const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-        cart[product.id] = newQuantity;
-        localStorage.setItem('cart', JSON.stringify(cart));
+        onUpdateCart(product.id, cartQuantity + 1);
     };
 
     const handleDecrease = () => {
-        const newQuantity = cartQuantity - 1;
-
-        if (newQuantity === 0) {
-            setCartQuantity(0);
-            const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-            delete cart[product.id];
-            localStorage.setItem('cart', JSON.stringify(cart));
-        } else {
-            setCartQuantity(newQuantity);
-            const cart = JSON.parse(localStorage.getItem('cart') || '{}');
-            cart[product.id] = newQuantity;
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
+        onUpdateCart(product.id, cartQuantity - 1);
     };
 
     return (
@@ -78,7 +36,7 @@ function ProductCard({ product }) {
             <div className={styles.photo}>
                 <div className={styles.topBar}>
                     <div className={styles.labels}>
-                        {product.oldPrice && (
+                        {product.isSale && (
                             <div className={styles.labelSale}>sale</div>
                         )}
                         {product.isNew && (
@@ -88,13 +46,16 @@ function ProductCard({ product }) {
                     <button
                         data-testid="favorite-btn"
                         data-active={isFavorite}
-                        className={`${styles.favoriteBtn} ${isFavorite ? styles.active : ''}`}
+                        className={styles.favoriteBtn}
                         onClick={handleFavoriteClick}
                     >
-                        <img src="../../icons/heart.svg" alt="favorites" />
+                        <img
+                            src={isFavorite ? "/icons/heart-active.svg" : "/icons/heart.svg"}
+                            alt="favorites"
+                            className={styles.heartIcon}
+                        />
                     </button>
                 </div>
-                {/* Добавляем изображение */}
                 <img
                     src={product.image}
                     alt={product.name}
@@ -106,7 +67,7 @@ function ProductCard({ product }) {
                 <div className={styles.name}>{product.name}</div>
                 <div className={styles.prices}>
                     <div className={styles.currentPrice}>${product.price}</div>
-                    {product.oldPrice && product.oldPrice > product.price && (
+                    {product.oldPrice && (
                         <div className={styles.oldPrice}>${product.oldPrice}</div>
                     )}
                 </div>

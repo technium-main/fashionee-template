@@ -1,8 +1,182 @@
-.cartContent {
+.cart {
     padding: 40px 0;
+}
+
+.emptyCart {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.emptyCart h2 {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 32px;
+    margin-bottom: 16px;
+    color: #333;
+}
+
+.emptyCart p {
+    color: #666;
+    font-size: 18px;
+}
+
+.cartContent {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.cartItems {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.cartItem {
+    display: grid;
+    grid-template-columns: 100px 1fr auto auto;
+    gap: 20px;
+    align-items: center;
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    background: white;
+}
+
+.itemImage {
+    width: 100px;
+    height: 120px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.itemImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.itemInfo {
+    flex: 1;
+}
+
+.itemName {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 18px;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.itemPrice {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.quantityControls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.quantityBtn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.quantityBtn:hover {
+    background: #f5f5f5;
+}
+
+.quantity {
+    font-weight: bold;
+    min-width: 30px;
     text-align: center;
 }
 
-.cartContent h2 {
+.itemTotal {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+}
+
+.removeBtn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #ddd;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #999;
+}
+
+.removeBtn:hover {
+    background: #ff6b6b;
+    color: white;
+    border-color: #ff6b6b;
+}
+
+.cartSummary {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    height: fit-content;
+}
+
+.cartSummary h3 {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 24px;
     margin-bottom: 20px;
+    color: #333;
+}
+
+.summaryRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.summaryRow:last-of-type {
+    border-bottom: 2px solid #333;
+    font-weight: bold;
+}
+
+.totalPrice {
+    font-family: 'Josefin Sans', sans-serif;
+    font-size: 20px;
+    color: #333;
+}
+
+.checkoutBtn {
+    width: 100%;
+    padding: 16px;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.2s;
+}
+
+.checkoutBtn:hover {
+    background: #555;
 }

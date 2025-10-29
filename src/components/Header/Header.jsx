@@ -1,15 +1,12 @@
 import React from 'react';
 import styles from './Header.module.css';
 
-function Header({ onNavigate }) {
-    // Обработчики кликов
+function Header({ onNavigate, cartItemsCount, favoritesCount }) {
     const handleShopClick = () => {
-        console.log('Shop clicked'); // Для отладки
         onNavigate('shop');
     };
 
     const handleCartClick = () => {
-        console.log('Cart clicked'); // Для отладки
         onNavigate('cart');
     };
 
@@ -56,7 +53,9 @@ function Header({ onNavigate }) {
                 </div>
                 <div className={styles.headerIcon} data-testid="favorite-btn">
                     <img src="/icons/heart.svg" alt="favorites"/>
-                    <div className={styles.counter}>1</div>
+                    {favoritesCount > 0 && (
+                        <div className={styles.counter}>{favoritesCount}</div>
+                    )}
                 </div>
                 <div
                     className={styles.headerIcon}
@@ -65,7 +64,9 @@ function Header({ onNavigate }) {
                     style={{ cursor: 'pointer' }}
                 >
                     <img src="/icons/cart.svg" alt="cart"/>
-                    <div className={styles.counter}>2</div>
+                    {cartItemsCount > 0 && (
+                        <div className={styles.counter}>{cartItemsCount}</div>
+                    )}
                 </div>
             </div>
         </header>

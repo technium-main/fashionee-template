@@ -3,7 +3,7 @@ import ContentBlock from '../../components/ContentBlock/ContentBlock';
 import Showcase from './components/Showcase/Showcase';
 import styles from './Shop.module.css';
 
-function Shop() {
+function Shop({ cart, onUpdateCart, favorites, onUpdateFavorites }) {
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -20,7 +20,6 @@ function Shop() {
 
                 const data = await response.json();
 
-                // ИСПРАВЛЕНИЕ: берем данные из data.products
                 if (data.products && Array.isArray(data.products)) {
                     setProducts(data.products);
                 } else {
@@ -53,7 +52,13 @@ function Shop() {
                 {loading ? (
                     <div className={styles.loading}>Loading products...</div>
                 ) : (
-                    <Showcase products={products} />
+                    <Showcase
+                        products={products}
+                        cart={cart}
+                        onUpdateCart={onUpdateCart}
+                        favorites={favorites}
+                        onUpdateFavorites={onUpdateFavorites}
+                    />
                 )}
             </ContentBlock>
         </div>

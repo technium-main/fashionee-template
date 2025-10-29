@@ -3,26 +3,41 @@ import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import Shop from './pages/Shop/Shop';
 import Cart from './pages/Cart/Cart';
+import { useCart } from './hooks/useCart';
+import { useFavorites } from './hooks/useFavorites';
 import './styles/commons.css';
 
 function App() {
-    // Состояние текущей страницы
     const [currentPage, setCurrentPage] = useState('shop');
+    const { cart, updateCart, totalItems } = useCart();
+    const { favorites, updateFavorites, favoritesCount } = useFavorites();
 
-    // Функция для смены страниц
     const navigateTo = (page) => {
-        console.log('Navigating to:', page); // Для отладки
         setCurrentPage(page);
     };
 
     return (
         <div className="App">
-            {/* Передаем функцию навигации в Header */}
-            <Header onNavigate={navigateTo} />
+            <Header
+                onNavigate={navigateTo}
+                cartItemsCount={totalItems}
+                favoritesCount={favoritesCount}
+            />
 
-            {/* Условный рендеринг страниц */}
-            {currentPage === 'shop' && <Shop />}
-            {currentPage === 'cart' && <Cart />}
+            {currentPage === 'shop' && (
+                <Shop
+                    cart={cart}
+                    onUpdateCart={updateCart}
+                    favorites={favorites}
+                    onUpdateFavorites={updateFavorites}
+                />
+            )}
+            {currentPage === 'cart' && (
+                <Cart
+                    cart={cart}
+                    onUpdateCart={updateCart}
+                />
+            )}
 
             <Footer />
         </div>
