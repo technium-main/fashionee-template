@@ -20,18 +20,17 @@ function Shop() {
 
                 const data = await response.json();
 
-                // Проверяем, что data - массив
-                if (Array.isArray(data)) {
-                    setProducts(data);
+                // ИСПРАВЛЕНИЕ: берем данные из data.products
+                if (data.products && Array.isArray(data.products)) {
+                    setProducts(data.products);
                 } else {
-                    // Если data объект с полем products
-                    setProducts(data.products || []);
+                    setProducts([]);
                 }
 
             } catch (err) {
                 console.error('Error loading products:', err);
                 setError('Failed to load products');
-                setProducts([]); // Устанавливаем пустой массив при ошибке
+                setProducts([]);
             } finally {
                 setLoading(false);
             }
