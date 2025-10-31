@@ -1,15 +1,146 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useApp } from "../../context/AppContext";
 import "./Shop.css";
 
 const Shop = ({ products = [] }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [categories, setCategories] = useState([]);
+  const [colors, setColors] = useState([]);
+  const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedColors, setSelectedColors] = useState([]);
+  const [priceFilter, setPriceFilter] = useState({ min: "", max: "" });
+  const [filtersApplied, setFiltersApplied] = useState(false);
+
+  const [tempFilters, setTempFilters] = useState({
+    category: "",
+    colors: [],
+    price: { min: "", max: "" },
+  });
+
+  const gatherFilterData = useCallback((products) => {
+    if (!products.length) return;
+
+    const allCategories = products.flatMap(
+      (product) => product.categories || []
+    );
+    const uniqueCategories = [...new Set(allCategories)].filter(Boolean);
+    setCategories(uniqueCategories);
+
+    const allColors = products.map((product) => product.color).filter(Boolean);
+    const uniqueColors = [...new Set(allColors)].filter(Boolean);
+    setColors(uniqueColors);
+
+    const prices = products.map((product) => product.price);
+    const minPrice = Math.min(...prices);
+    const maxPrice = Math.max(...prices);
+    setPriceRange({ min: minPrice, max: maxPrice });
+
+    console.log("📊 Собраны данные фильтров:", {
+      categories: uniqueCategories,
+      colors: uniqueColors,
+      priceRange: { min: minPrice, max: maxPrice },
+    });
+  }, []);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      gatherFilterData(products);
+    }
+  }, [products, gatherFilterData]);
+
+  const filterProducts = useCallback((products, search) => {
+    if (!search.trim()) return products;
+
+    const lowerSearch = search.toLowerCase();
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(lowerSearch)
+    );
+  }, []);
+
+  const useDebounce = (value, delay) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+
+    return debouncedValue;
+  };
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 400);
+
+  useEffect(() => {
+    const filtered = filterProducts(products, debouncedSearchTerm);
+    setFilteredProducts(filtered);
+  }, [debouncedSearchTerm, products, filterProducts]);
+
+  const applyFilters = useCallback(() => {
+    let result = products;
+
+    // Фильтр по поиску
+    if (searchTerm.trim()) {
+      const lowerSearch = searchTerm.toLowerCase();
+      result = result.filter((product) =>
+        product.name.toLowerCase().includes(lowerSearch)
+      );
+    }
+
+    // Фильтр по категории (ИСПОЛЬЗУЕМ tempFilters)
+    if (tempFilters.category) {
+      result = result.filter((product) =>
+        product.categories?.includes(tempFilters.category)
+      );
+    }
+
+    // Фильтр по цвету (ИСПОЛЬЗУЕМ tempFilters)
+    if (tempFilters.colors.length > 0) {
+      result = result.filter((product) =>
+        tempFilters.colors.includes(product.color)
+      );
+    }
+
+    // Фильтр по цене (ИСПОЛЬЗУЕМ tempFilters)
+    const minPrice = tempFilters.price.min
+      ? Number(tempFilters.price.min)
+      : priceRange.min;
+    const maxPrice = tempFilters.price.max
+      ? Number(tempFilters.price.max)
+      : priceRange.max;
+
+    result = result.filter(
+      (product) => product.price >= minPrice && product.price <= maxPrice
+    );
+
+    setFilteredProducts(result);
+
+    // 👇 ОБНОВЛЯЕМ ОСНОВНЫЕ СОСТОЯНИЯ ТОЛЬКО ПОСЛЕ APPLY
+    setSelectedCategory(tempFilters.category);
+    setSelectedColors(tempFilters.colors);
+    setPriceFilter(tempFilters.price);
+  }, [products, searchTerm, tempFilters, priceRange]);
+
   return (
     <div className="container">
       <div className="shop">
         <div className="sidebar">
           <div className="search">
             <div className="search-row">
-              <input type="text" placeholder="Search..." className="input" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="input"
+                data-testid="search-input"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
             <img
               src="/icons/search.svg"
@@ -22,10 +153,35 @@ const Shop = ({ products = [] }) => {
             <div className="sidebar-title">Categories</div>
             <div className="sidebar-content">
               <ul className="custom-list">
-                <li className="item">All</li>
-                <li className="item">Women</li>
-                <li className="item">Men</li>
-                <li className="item">Kids</li>
+                <li
+                  className={`item ${
+                    tempFilters.category === "" ? "active" : ""
+                  }`}
+                  onClick={() =>
+                    setTempFilters((prev) => ({ ...prev, category: "" }))
+                  }
+                  style={{ cursor: "pointer" }}
+                >
+                  All
+                </li>
+                {categories.map((category) => (
+                  <li
+                    key={category}
+                    className={`item ${
+                      tempFilters.category === category ? "active" : ""
+                    }`}
+                    onClick={() =>
+                      setTempFilters((prev) => ({
+                        ...prev,
+                        category: category,
+                      }))
+                    }
+                    style={{ cursor: "pointer" }}
+                    data-testid={`filter-category-${category.toLowerCase()}`}
+                  >
+                    {category}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -33,9 +189,39 @@ const Shop = ({ products = [] }) => {
           <div className="sidebar-item">
             <div className="sidebar-title">Price</div>
             <div className="sidebar-content">
-              <div className="price-bar">
-                <span>$0</span>
-                <span>$500</span>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  flexDirection: "column",
+                }}
+              >
+                <input
+                  type="number"
+                  placeholder={`Min: $${priceRange.min}`}
+                  className="input"
+                  data-testid="price-min-input" // 👈 DATA-TESTID
+                  value={priceFilter.min}
+                  onChange={(e) =>
+                    setTempFilters((prev) => ({
+                      ...prev,
+                      price: { ...prev.price, min: e.target.value },
+                    }))
+                  }
+                />
+                <input
+                  type="number"
+                  placeholder={`Max: $${priceRange.max}`}
+                  className="input"
+                  data-testid="price-max-input" // 👈 DATA-TESTID
+                  value={priceFilter.max}
+                  onChange={(e) =>
+                    setTempFilters((prev) => ({
+                      ...prev,
+                      price: { ...prev.price, max: e.target.value },
+                    }))
+                  }
+                />
               </div>
             </div>
           </div>
@@ -44,14 +230,32 @@ const Shop = ({ products = [] }) => {
             <div className="sidebar-title">Colors</div>
             <div className="sidebar-content">
               <div className="colors">
-                {["Black", "White", "Red", "Blue", "Green"].map((color) => (
+                {colors.map((color) => (
                   <div key={color} className="color">
                     <input
                       type="checkbox"
                       id={color}
                       className="color-checkbox"
+                      checked={tempFilters.colors.includes(color)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setTempFilters((prev) => ({
+                            ...prev,
+                            colors: [...prev.colors, color],
+                          }));
+                        } else {
+                          setTempFilters((prev) => ({
+                            ...prev,
+                            colors: prev.colors.filter((c) => c !== color),
+                          }));
+                        }
+                      }}
                     />
-                    <label htmlFor={color} className="color-name">
+                    <label
+                      htmlFor={color}
+                      className="color-name"
+                      data-testid={`filter-color-${color.toLowerCase()}`} // 👈 DATA-TESTID
+                    >
                       {color}
                     </label>
                   </div>
@@ -59,14 +263,33 @@ const Shop = ({ products = [] }) => {
               </div>
             </div>
           </div>
+          <div className="sidebar-item">
+            <button
+              className="button"
+              data-testid="apply-filter-btn"
+              onClick={applyFilters}
+              style={{ width: "100%", padding: "15px" }}
+            >
+              Apply Filters
+            </button>
+          </div>
         </div>
 
         {/* ОСНОВНАЯ ЧАСТЬ С ТОВАРАМИ */}
         <div className="products-wrapper">
           <div className="sort-and-count">
             <div className="count">
-              Showing <span className="bold">1–{products.length}</span> of{" "}
-              <span className="bold">{products.length}</span> results
+              {filteredProducts.length === 0 ? (
+                <span>No products found</span>
+              ) : (
+                <>
+                  There are{" "}
+                  <span className="bold" data-testid="products-count">
+                    {filteredProducts.length}
+                  </span>{" "}
+                  products in this category.
+                </>
+              )}
             </div>
             <div className="sort">
               <select className="input">
@@ -79,10 +302,10 @@ const Shop = ({ products = [] }) => {
 
           {/* ВИТРИНА ТОВАРОВ */}
           <div data-testid="showcase" className="showcase">
-            {products.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <p>Загрузка товаров...</p>
             ) : (
-              products.map((product) => (
+              filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))
             )}
@@ -107,7 +330,6 @@ const Shop = ({ products = [] }) => {
   );
 };
 
-// КОМПОНЕНТ КАРТОЧКИ ТОВАРА С КОРЗИНОЙ
 // КОМПОНЕНТ КАРТОЧКИ ТОВАРА С КОРЗИНОЙ
 const ProductCard = ({ product }) => {
   const [isFavorite, setIsFavorite] = useState(false);
