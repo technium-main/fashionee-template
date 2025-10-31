@@ -379,8 +379,8 @@ const ProductCard = ({ product }) => {
         } else if (typeof cart === "object" && cart !== null) {
           quantity = cart[product.id] || 0;
         }
-      } catch (error) {
-        //console.error("Error parsing cart:", error);
+      } catch {
+        console.error("Some error");
       }
     }
 
@@ -424,8 +424,8 @@ const ProductCard = ({ product }) => {
             quantity: quantity,
           }));
         }
-      } catch (error) {
-        //console.error("Error parsing cart:", error);
+      } catch {
+        console.error("Some error");
       }
     }
 
@@ -458,8 +458,8 @@ const ProductCard = ({ product }) => {
             quantity: quantity,
           }));
         }
-      } catch (error) {
-        //console.error("Error parsing cart:", error);
+      } catch {
+        console.error("Some error");
       }
     }
 

@@ -38,9 +38,9 @@ export const AppProvider = ({ children }) => {
       }
       
       setCartCount(totalItems);
-    } catch (error) {
-      setCartCount(0);
-    }
+      } catch {
+        console.error('Error parsing cart data');
+      }
   };
 
   // Загрузка избранного и корзины при запуске
