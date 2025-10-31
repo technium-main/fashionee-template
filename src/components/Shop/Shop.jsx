@@ -8,16 +8,15 @@ const Shop = ({ products = [] }) => {
   const [categories, setCategories] = useState([]);
   const [colors, setColors] = useState([]);
   const [priceRange, setPriceRange] = useState({ min: 0, max: 0 });
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [selectedColors, setSelectedColors] = useState([]);
-  const [priceFilter, setPriceFilter] = useState({ min: "", max: "" });
-  const [filtersApplied, setFiltersApplied] = useState(false);
+  const PRODUCTS_PER_PAGE = 12;
 
   const [tempFilters, setTempFilters] = useState({
     category: "",
     colors: [],
     price: { min: "", max: "" },
   });
+
+  const [filtersActive, setFiltersActive] = useState(false);
 
   const gatherFilterData = useCallback((products) => {
     if (!products.length) return;
@@ -36,6 +35,10 @@ const Shop = ({ products = [] }) => {
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
     setPriceRange({ min: minPrice, max: maxPrice });
+    setTempFilters((prev) => ({
+      ...prev,
+      price: { min: minPrice, max: maxPrice },
+    }));
 
     console.log("📊 Собраны данные фильтров:", {
       categories: uniqueCategories,
@@ -50,7 +53,8 @@ const Shop = ({ products = [] }) => {
     }
   }, [products, gatherFilterData]);
 
-  const filterProducts = useCallback((products, search) => {
+  // 👇 ФУНКЦИЯ ТОЛЬКО ДЛЯ ПОИСКА (с debounce)
+  const applySearch = useCallback((products, search) => {
     if (!search.trim()) return products;
 
     const lowerSearch = search.toLowerCase();
@@ -59,6 +63,67 @@ const Shop = ({ products = [] }) => {
     );
   }, []);
 
+  // 👇 ФУНКЦИЯ ДЛЯ ФИЛЬТРОВ (только по кнопке)
+  const applyAllFilters = useCallback(() => {
+    let result = products;
+
+    // Фильтр по поиску
+    if (searchTerm.trim()) {
+      result = applySearch(result, searchTerm);
+    }
+
+    // Фильтр по категории
+    if (tempFilters.category) {
+      result = result.filter((product) =>
+        product.categories?.includes(tempFilters.category)
+      );
+    }
+
+    // Фильтр по цвету
+    if (tempFilters.colors.length > 0) {
+      result = result.filter((product) =>
+        tempFilters.colors.includes(product.color)
+      );
+    }
+
+    // Фильтр по цене
+    const minPrice =
+      tempFilters.price.min !== ""
+        ? Number(tempFilters.price.min)
+        : priceRange.min;
+    const maxPrice =
+      tempFilters.price.max !== ""
+        ? Number(tempFilters.price.max)
+        : priceRange.max;
+
+    result = result.filter(
+      (product) => product.price >= minPrice && product.price <= maxPrice
+    );
+
+    // Если пользователь очистил поля — вернуть диапазон в inputs
+    if (tempFilters.price.min === "" || tempFilters.price.max === "") {
+      setTempFilters((prev) => ({
+        ...prev,
+        price: {
+          min: prev.price.min === "" ? priceRange.min : prev.price.min,
+          max: prev.price.max === "" ? priceRange.max : prev.price.max,
+        },
+      }));
+    }
+
+    setFilteredProducts(result);
+    setFiltersActive(true);
+
+    console.log("✅ Applied filters:", {
+      search: searchTerm,
+      category: tempFilters.category,
+      colors: tempFilters.colors,
+      price: { min: minPrice, max: maxPrice },
+      resultCount: result.length,
+    });
+  }, [products, searchTerm, tempFilters, priceRange, applySearch]);
+
+  // 👇 DEBOUNCE ДЛЯ ПОИСКА
   const useDebounce = (value, delay) => {
     const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -77,55 +142,32 @@ const Shop = ({ products = [] }) => {
 
   const debouncedSearchTerm = useDebounce(searchTerm, 400);
 
+  // 👇 ПРИМЕНЯЕМ ТОЛЬКО ПОИСК (без фильтров)
   useEffect(() => {
-    const filtered = filterProducts(products, debouncedSearchTerm);
-    setFilteredProducts(filtered);
-  }, [debouncedSearchTerm, products, filterProducts]);
-
-  const applyFilters = useCallback(() => {
-    let result = products;
-
-    // Фильтр по поиску
-    if (searchTerm.trim()) {
-      const lowerSearch = searchTerm.toLowerCase();
-      result = result.filter((product) =>
-        product.name.toLowerCase().includes(lowerSearch)
-      );
+    // поиск всегда обновляется независимо от фильтров,
+    // но если фильтры активны — не трогаем результат вручную
+    if (!filtersActive) {
+      const result = applySearch(products, debouncedSearchTerm);
+      setFilteredProducts(result);
     }
+  }, [debouncedSearchTerm, products, applySearch, filtersActive]);
 
-    // Фильтр по категории (ИСПОЛЬЗУЕМ tempFilters)
-    if (tempFilters.category) {
-      result = result.filter((product) =>
-        product.categories?.includes(tempFilters.category)
-      );
-    }
+  // 👇 ФУНКЦИЯ ДЛЯ РУЧНОГО ПРИМЕНЕНИЯ ФИЛЬТРОВ
+  const handleApplyFilters = () => {
+    setFiltersActive(true);
+    applyAllFilters();
+  };
 
-    // Фильтр по цвету (ИСПОЛЬЗУЕМ tempFilters)
-    if (tempFilters.colors.length > 0) {
-      result = result.filter((product) =>
-        tempFilters.colors.includes(product.color)
-      );
-    }
-
-    // Фильтр по цене (ИСПОЛЬЗУЕМ tempFilters)
-    const minPrice = tempFilters.price.min
-      ? Number(tempFilters.price.min)
-      : priceRange.min;
-    const maxPrice = tempFilters.price.max
-      ? Number(tempFilters.price.max)
-      : priceRange.max;
-
-    result = result.filter(
-      (product) => product.price >= minPrice && product.price <= maxPrice
-    );
-
-    setFilteredProducts(result);
-
-    // 👇 ОБНОВЛЯЕМ ОСНОВНЫЕ СОСТОЯНИЯ ТОЛЬКО ПОСЛЕ APPLY
-    setSelectedCategory(tempFilters.category);
-    setSelectedColors(tempFilters.colors);
-    setPriceFilter(tempFilters.price);
-  }, [products, searchTerm, tempFilters, priceRange]);
+  // 👇 ФУНКЦИЯ ДЛЯ СБРОСА ФИЛЬТРОВ
+  const resetFilters = () => {
+    setTempFilters({
+      category: "",
+      colors: [],
+      price: { min: "", max: "" },
+    });
+    setFiltersActive(false);
+    setFilteredProducts(products);
+  };
 
   return (
     <div className="container">
@@ -161,6 +203,7 @@ const Shop = ({ products = [] }) => {
                     setTempFilters((prev) => ({ ...prev, category: "" }))
                   }
                   style={{ cursor: "pointer" }}
+                  data-testid="filter-category-all"
                 >
                   All
                 </li>
@@ -200,8 +243,8 @@ const Shop = ({ products = [] }) => {
                   type="number"
                   placeholder={`Min: $${priceRange.min}`}
                   className="input"
-                  data-testid="price-min-input" // 👈 DATA-TESTID
-                  value={priceFilter.min}
+                  data-testid="price-min-input"
+                  value={tempFilters.price.min}
                   onChange={(e) =>
                     setTempFilters((prev) => ({
                       ...prev,
@@ -213,8 +256,8 @@ const Shop = ({ products = [] }) => {
                   type="number"
                   placeholder={`Max: $${priceRange.max}`}
                   className="input"
-                  data-testid="price-max-input" // 👈 DATA-TESTID
-                  value={priceFilter.max}
+                  data-testid="price-max-input"
+                  value={tempFilters.price.max}
                   onChange={(e) =>
                     setTempFilters((prev) => ({
                       ...prev,
@@ -254,7 +297,7 @@ const Shop = ({ products = [] }) => {
                     <label
                       htmlFor={color}
                       className="color-name"
-                      data-testid={`filter-color-${color.toLowerCase()}`} // 👈 DATA-TESTID
+                      data-testid={`filter-color-${color.toLowerCase()}`}
                     >
                       {color}
                     </label>
@@ -263,12 +306,16 @@ const Shop = ({ products = [] }) => {
               </div>
             </div>
           </div>
-          <div className="sidebar-item">
+
+          <div
+            className="sidebar-item"
+            style={{ display: "flex", gap: "10px" }}
+          >
             <button
               className="button"
               data-testid="apply-filter-btn"
-              onClick={applyFilters}
-              style={{ width: "100%", padding: "15px" }}
+              onClick={handleApplyFilters}
+              style={{ flex: 1, padding: "15px" }}
             >
               Apply Filters
             </button>
@@ -303,11 +350,13 @@ const Shop = ({ products = [] }) => {
           {/* ВИТРИНА ТОВАРОВ */}
           <div data-testid="showcase" className="showcase">
             {filteredProducts.length === 0 ? (
-              <p>Загрузка товаров...</p>
+              <p>No products found</p>
             ) : (
-              filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))
+              filteredProducts
+                .slice(0, PRODUCTS_PER_PAGE)
+                .map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))
             )}
           </div>
 
@@ -472,6 +521,9 @@ const ProductCard = ({ product }) => {
     <div
       data-testid="product-card"
       data-product-id={product.id}
+      data-categories={product.categories?.join(",") || ""}
+      data-color={product.color || ""}
+      data-price={product.price}
       className="product-card"
     >
       <div className="photo">
