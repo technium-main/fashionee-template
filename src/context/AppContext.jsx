@@ -39,7 +39,6 @@ export const AppProvider = ({ children }) => {
       
       setCartCount(totalItems);
     } catch (error) {
-      console.error('Error parsing cart data:', error);
       setCartCount(0);
     }
   };

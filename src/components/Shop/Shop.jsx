@@ -39,12 +39,6 @@ const Shop = ({ products = [] }) => {
       ...prev,
       price: { min: minPrice, max: maxPrice },
     }));
-
-    console.log("📊 Собраны данные фильтров:", {
-      categories: uniqueCategories,
-      colors: uniqueColors,
-      priceRange: { min: minPrice, max: maxPrice },
-    });
   }, []);
 
   useEffect(() => {
@@ -113,14 +107,6 @@ const Shop = ({ products = [] }) => {
 
     setFilteredProducts(result);
     setFiltersActive(true);
-
-    console.log("✅ Applied filters:", {
-      search: searchTerm,
-      category: tempFilters.category,
-      colors: tempFilters.colors,
-      price: { min: minPrice, max: maxPrice },
-      resultCount: result.length,
-    });
   }, [products, searchTerm, tempFilters, priceRange, applySearch]);
 
   // 👇 DEBOUNCE ДЛЯ ПОИСКА
@@ -156,17 +142,6 @@ const Shop = ({ products = [] }) => {
   const handleApplyFilters = () => {
     setFiltersActive(true);
     applyAllFilters();
-  };
-
-  // 👇 ФУНКЦИЯ ДЛЯ СБРОСА ФИЛЬТРОВ
-  const resetFilters = () => {
-    setTempFilters({
-      category: "",
-      colors: [],
-      price: { min: "", max: "" },
-    });
-    setFiltersActive(false);
-    setFilteredProducts(products);
   };
 
   return (
@@ -405,7 +380,7 @@ const ProductCard = ({ product }) => {
           quantity = cart[product.id] || 0;
         }
       } catch (error) {
-        console.error("Error parsing cart:", error);
+        //console.error("Error parsing cart:", error);
       }
     }
 
@@ -450,7 +425,7 @@ const ProductCard = ({ product }) => {
           }));
         }
       } catch (error) {
-        console.error("Error parsing cart:", error);
+        //console.error("Error parsing cart:", error);
       }
     }
 
@@ -484,7 +459,7 @@ const ProductCard = ({ product }) => {
           }));
         }
       } catch (error) {
-        console.error("Error parsing cart:", error);
+        //console.error("Error parsing cart:", error);
       }
     }
 

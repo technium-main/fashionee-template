@@ -54,7 +54,6 @@ const Cart = () => {
 
   const handlePromoSubmit = (e) => {
     e.preventDefault();
-    console.log("Promo code submitted:", promoCode);
   };
 
   return (

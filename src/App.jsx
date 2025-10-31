@@ -28,15 +28,15 @@ const AppContent = () => {
   };
 
   const handleSearchClick = () => {
-    console.log("Search clicked");
+    //console.log("Search clicked");
   };
 
   const handleProfileClick = () => {
-    console.log("Profile clicked");
+   // console.log("Profile clicked");
   };
 
   const handleFavoritesClick = () => {
-    console.log("Favorites clicked");
+    //console.log("Favorites clicked");
   };
 
   return (
