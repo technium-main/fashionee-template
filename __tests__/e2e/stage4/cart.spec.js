@@ -155,6 +155,11 @@ test.describe("Stage 4 — Корзина", () => {
   });
 
   test("По клику на Checkout в консоль выводятся данные заказа", async ({ page }) => {
+    await page.getByTestId("shop-btn").click();
+    const firstProduct = page.getByTestId("product-card").first();
+    await firstProduct.getByTestId("add-to-cart-btn").click();
+    await page.getByTestId("cart-btn").click();
+    
     const [message] = await Promise.all([
       page.waitForEvent("console"),
       page.getByTestId("checkout-btn").click(),
